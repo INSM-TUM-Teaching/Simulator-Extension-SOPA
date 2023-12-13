@@ -17,19 +17,60 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class CostDriverExecutionPlugin {
-    List<AbstractCostDriver> abstractCostDrivers;
-    List<ConcreteCostDriver> concreteCostDrivers;
+import de.hpi.bpt.scylla.plugin_type.IPluggable;
 
-    public CostDriverExecutionPlugin() {
-        this.abstractCostDrivers = new ArrayList<>();
-        this.concreteCostDrivers = new ArrayList<>();
+import java.util.List;
+
+public class CostDriverExecutionPlugin implements IPluggable{
+
+
+    private static List<AbstractCostDriver> abstractCostDrivers;
+  private static  List<String> concreteCostDrivers;
+
+    public CostDriverExecutionPlugin() throws ParserConfigurationException, IOException, SAXException {
+        abstractCostDrivers = XMLParser.parseGC(XMLParser
+                .xmlParser("hiring_process_global_1.xml"));
+        concreteCostDrivers = XMLParser.parseSC(XMLParser
+                .xmlParser("hiring_process_sim.xml")).stream().distinct().toList();
     }
+
+    //Sum of all LCA*probability of a concreteCostDriver
+    private double totalActivityCost(ConcreteCostDriver concreteCostDriver){
+        return concreteCostDriver.getLCAScore()*concreteCostDriver.getProbability();
+    }
+
+    //Sum of all concreteCostDrivers of a single abstractCostDriver
+    private double totalProcessCost(AbstractCostDriver abstractCostDriver){
+        return abstractCostDriver.getChildren()
+                .stream()
+                .mapToDouble(concreteCostDrivers
+                        -> concreteCostDrivers.getProbability()*concreteCostDrivers.getLCAScore()).sum();
+    }
+
+    //Average of an abstractCostDrivers
+    private double averageActivityCost(AbstractCostDriver abstractCostDriver){
+        //the total number of activity instances
+        int occurences = abstractCostDriver.getChildren().size();
+        return totalProcessCost(abstractCostDriver)/occurences;
+    }
+
+    private double averageProcessCost(List<AbstractCostDriver> abstractCostDrivers){
+        int occurences = abstractCostDrivers.size();
+        double tmp = 0;
+        for (int i= 0; i < abstractCostDrivers.size(); i++) {
+            tmp += averageActivityCost(abstractCostDrivers.get(i));
+        }
+        return tmp/occurences;
+    }
+    @Override
+    public String getName() {
+        return null;
+    }
+
+
 
     public static void execute() throws ParserConfigurationException, IOException, SAXException, ScyllaValidationException {
 
-        List<AbstractCostDriver> abstractCostDrivers = XMLParser.parseGC(XMLParser.xmlParser("hiring_process_global_1.xml"));
-        List<String> concreteCostDrivers = XMLParser.parseSC(XMLParser.xmlParser("hiring_process_sim.xml")).stream().distinct().toList();
         List<AbstractCostDriver> tmp = new ArrayList<>();
 
         for (var i : abstractCostDrivers) {
@@ -66,6 +107,7 @@ public class CostDriverExecutionPlugin {
     }
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ScyllaValidationException {
+        CostDriverExecutionPlugin  costDriverExecutionPlugin = new CostDriverExecutionPlugin();
         execute();
     }
 }
