@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bsim:definitions xmlns:bsim="http://bsim.hpi.uni-potsdam.de/scylla/simModel" targetNamespace="http://www.hpi.de">
   <bsim:simulationConfiguration id="hiring_process_sim" startDateTime="2017-10-01T09:00+01:00" processRef="Process_1" processInstances="10">
-
-
     <bsim:startEvent id="StartEvent_1">
       <bsim:arrivalRate timeUnit="HOURS">
         <bsim:constantDistribution>

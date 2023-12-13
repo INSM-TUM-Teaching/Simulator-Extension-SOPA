@@ -54,7 +54,7 @@
           </bsim:exponentialDistribution>
         </bsim:duration>
         <bsim:probability>0.9</bsim:probability>
-      </bsim:concreteCostDriver>hhh
+      </bsim:concreteCostDriver>
       <bsim:concreteCostDriver id="computer_lessStrict" LCAScores="0.0000293">
         <bsim:duration timeUnit="HOURS">
           <bsim:exponentialDistribution>
