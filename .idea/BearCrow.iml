@@ -28,14 +28,14 @@
     <orderEntry type="module-library">
       <library name="Maven: de.hpi.bpt:scylla:0.0.1-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../cost_driver/scylla/scylla.jar!/" />
+          <root url="jar://$MODULE_DIR$/../scylla/scylla.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: org.jdom:jdom2:2.0.6" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.6.4" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:5.3.16" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.3.16" level="project" />

@@ -13,9 +13,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.*;
 import java.io.*;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import de.hpi.bpt.scylla.plugin_type.IPluggable;
 
@@ -34,33 +32,48 @@ public class CostDriverExecutionPlugin implements IPluggable{
                 .xmlParser("hiring_process_sim.xml")).stream().distinct().toList();
     }
 
-    //Sum of all LCA*probability of a concreteCostDriver
-    private double totalActivityCost(ConcreteCostDriver concreteCostDriver){
-        return concreteCostDriver.getLCAScore()*concreteCostDriver.getProbability();
-    }
-
-    //Sum of all concreteCostDrivers of a single abstractCostDriver
-    private double totalProcessCost(AbstractCostDriver abstractCostDriver){
+    //Definition 6: Sum of all LCA*probability of all concreteCostDriver of an abstractCostDriver
+    private double totalActivityCost(AbstractCostDriver abstractCostDriver){
         return abstractCostDriver.getChildren()
                 .stream()
                 .mapToDouble(concreteCostDrivers
                         -> concreteCostDrivers.getProbability()*concreteCostDrivers.getLCAScore()).sum();
     }
 
-    //Average of an abstractCostDrivers
-    private double averageActivityCost(AbstractCostDriver abstractCostDriver){
-        //the total number of activity instances
-        int occurences = abstractCostDriver.getChildren().size();
-        return totalProcessCost(abstractCostDriver)/occurences;
+    //Defintion 7: Sum of all concreteCostDrivers of all abstractCostDriver in a process
+    private double totalProcessCost(List<AbstractCostDriver> abstractCostDriverList){
+        double totalCost = 0;
+        for (AbstractCostDriver abstractCostDriver: abstractCostDriverList) {
+            totalCost += totalActivityCost(abstractCostDriver);
+        }
+        return totalCost;
+    }
+
+    //Definition 8: Number of instances of activity a in T, multiplied by env cost and divided by total occurrences.
+    private double averageActivityCost(AbstractCostDriver abstractCostDriver,
+                                       List<AbstractCostDriver> abstractCostDriverList){
+        double totalCost = 0;
+        int occurrences = 0;
+        //the total number of activity instances of an activity that exist
+        long specific_count = abstractCostDriverList.stream()
+                .filter(activity -> activity.getId().equals(abstractCostDriver.getId()))
+                .count();
+        //for every instance of an activity, calculate the total env cost
+        for (AbstractCostDriver costDriver : abstractCostDriverList) {
+            if (costDriver.getId().equals(abstractCostDriver.getId())) {
+                totalCost += totalActivityCost(costDriver);
+                occurrences++;
+            }
+        }
+        return totalCost/ occurrences;
     }
 
     private double averageProcessCost(List<AbstractCostDriver> abstractCostDrivers){
-        int occurences = abstractCostDrivers.size();
-        double tmp = 0;
-        for (int i= 0; i < abstractCostDrivers.size(); i++) {
-            tmp += averageActivityCost(abstractCostDrivers.get(i));
-        }
-        return tmp/occurences;
+        /* if we assume (i==a==activity or task) and t is a set of i. then each t is a process file.
+         we need a higher level variable that accounts for the entire files. eg: hiring_process_global.
+        */
+
+        return 0;
     }
     @Override
     public String getName() {
@@ -106,7 +119,9 @@ public class CostDriverExecutionPlugin implements IPluggable{
 
     }
 
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ScyllaValidationException {
+    public static void main(String[] args) throws IOException
+            , ParserConfigurationException, SAXException
+            , ScyllaValidationException {
         CostDriverExecutionPlugin  costDriverExecutionPlugin = new CostDriverExecutionPlugin();
         execute();
     }
