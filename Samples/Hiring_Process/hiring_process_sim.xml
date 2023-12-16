@@ -24,7 +24,7 @@
       <bsim:variant id="digital only" frequency="0.3">
         <bsim:driver id="Request for job advertisement" cost="0.0000195"/>
         <bsim:driver id="In-house mail" cost="0.0000000195"/>
-        <bsim:driver id="Advertisement" cost="0.00001.95"/>
+        <bsim:driver id="Advertisement" cost="0.0000195"/>
         <bsim:driver id="Sifting" cost="0.0000293"/>
         <bsim:driver id="Interview" cost="0.000035"/>
         <bsim:driver id="Application for employee" cost="0.0000195"/>
